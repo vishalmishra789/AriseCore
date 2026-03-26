@@ -65,66 +65,75 @@
     </div>
 
     <script>
-        // --- SECURE CONFIGURATION ---
-        const SECRET_PASS = 'VISHAL@2008'; 
-        const SB_URL = 'https://zsdtrlcyzhcfgcwqudjd.supabase.co'; 
-        const SB_KEY = 'sb_publishable_AH1FfoTaQhEzco0uLSskww_mWKXOtBu'; 
-        // ----------------------------
+    // --- SECURE CONFIGURATION ---
+    const SECRET_PASS = 'VISHAL@2008'; 
+    const SB_URL = 'https://zsdtrlcyzhcfgcwqudjd.supabase.co'; 
+    const SB_KEY = 'sb_publishable_AH1FfoTaQhEzco0uLSskww_mWKXOtBu'; 
+    // ----------------------------
 
-        // Initialize Supabase Client
-        const _supabase = supabase.createClient(SB_URL, SB_KEY);
+    // Use window.supabase to ensure the library is globally loaded
+    const _supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
-        function checkAuth() {
-            const input = document.getElementById('admin-pass').value;
-            const error = document.getElementById('login-error');
-            
-            if(input === SECRET_PASS) {
-                document.getElementById('login-box').classList.add('hidden');
-                document.getElementById('admin-panel').classList.remove('hidden');
-            } else {
-                error.classList.remove('hidden');
-                setTimeout(() => error.classList.add('hidden'), 3000);
-            }
+    function checkAuth() {
+        const input = document.getElementById('admin-pass').value;
+        const error = document.getElementById('login-error');
+        
+        if(input === SECRET_PASS) {
+            document.getElementById('login-box').classList.add('hidden');
+            document.getElementById('admin-panel').classList.remove('hidden');
+        } else {
+            error.classList.remove('hidden');
+            setTimeout(() => error.classList.add('hidden'), 3000);
+        }
+    }
+
+    async function deployModule() {
+        const btn = document.getElementById('main-btn');
+        const msg = document.getElementById('msg');
+        
+        const payload = {
+            name: document.getElementById('m-name').value,
+            version: document.getElementById('m-ver').value,
+            category: document.getElementById('m-cat').value,
+            description: document.getElementById('m-desc').value,
+            download_url: document.getElementById('m-url').value,
+            image_url: document.getElementById('m-img').value
+        };
+
+        if(!payload.name || !payload.download_url) {
+            msg.innerText = "Error: Missing Name or URL";
+            msg.className = "mt-6 text-xs text-center text-red-500 uppercase tracking-widest";
+            return;
         }
 
-        async function deployModule() {
-            const btn = document.getElementById('main-btn');
-            const msg = document.getElementById('msg');
-            
-            const payload = {
-                name: document.getElementById('m-name').value,
-                version: document.getElementById('m-ver').value,
-                category: document.getElementById('m-cat').value,
-                description: document.getElementById('m-desc').value,
-                download_url: document.getElementById('m-url').value,
-                image_url: document.getElementById('m-img').value
-            };
+        btn.innerText = "CONNECTING...";
+        btn.disabled = true;
 
-            if(!payload.name || !payload.download_url) {
-                msg.innerText = "Error: Missing Core Parameters";
-                msg.className = "mt-6 text-xs text-center text-red-500 uppercase tracking-widest";
-                return;
-            }
-
-            btn.innerText = "INITIALIZING UPLOAD...";
-            btn.disabled = true;
-
-            // Targeting your table named "Modules" (Case Sensitive)
-            const { error } = await _supabase.from('Modules').insert([payload]);
+        try {
+            // Note: Ensure your table name in Supabase is "Modules" (Capital M)
+            const { data, error } = await _supabase.from('Modules').insert([payload]);
 
             if (error) {
-                console.error(error);
-                msg.innerText = "UPLINK FAILED: " + error.message;
+                // This catches database-specific errors (like wrong column names)
+                console.error("Supabase Error:", error);
+                msg.innerText = "DB ERROR: " + error.message;
                 msg.className = "mt-6 text-xs text-center text-red-400 uppercase tracking-widest";
             } else {
-                msg.innerText = "System Synced: Module Live";
+                msg.innerText = "SYSTEM SYNCED: MODULE LIVE";
                 msg.className = "mt-6 text-xs text-center text-green-400 uppercase tracking-widest";
-                document.querySelectorAll('input, textarea').forEach(i => i.value = "");
+                // Clear inputs
+                document.querySelectorAll('.cyber-input').forEach(i => i.value = "");
             }
-
-            btn.innerText = "Deploy to AriseCore";
-            btn.disabled = false;
+        } catch (err) {
+            // This catches the "Failed to Fetch" (Network errors)
+            console.error("Network Error:", err);
+            msg.innerText = "NETWORK ERROR: Check AdBlocker or VPN";
+            msg.className = "mt-6 text-xs text-center text-orange-500 uppercase tracking-widest";
         }
-    </script>
+
+        btn.innerText = "Deploy to AriseCore";
+        btn.disabled = false;
+    }
+</script>
 </body>
 </html>

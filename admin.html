@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AriseCore | Nexus Admin</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #050505; color: white; font-family: sans-serif; }
+        .cyber-input { background: #111; border: 1px solid #222; padding: 12px; width: 100%; color: white; margin-bottom: 15px; outline: none; }
+        .cyber-input:focus { border-color: #8b5cf6; box-shadow: 0 0 10px rgba(139, 92, 246, 0.2); }
+        .btn-v { background: #8b5cf6; padding: 12px; font-weight: bold; width: 100%; transition: 0.3s; }
+        .btn-v:hover { filter: brightness(1.2); box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); }
+    </style>
+</head>
+<body class="p-6 md:p-20">
+    <div class="max-w-xl mx-auto bg-[#0a0a0f] border border-white/5 p-8 rounded-xl">
+        <h2 class="text-3xl font-black mb-8 text-violet-500 uppercase tracking-tighter italic">Nexus Admin Panel</h2>
+        
+        <div id="setup-check" class="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 text-xs rounded hidden">
+            ⚠️ Supabase keys are missing in the script!
+        </div>
+
+        <div class="space-y-2">
+            <label class="text-[10px] uppercase tracking-widest text-gray-500">Module Identity</label>
+            <input type="text" id="m-name" placeholder="BetterFPS" class="cyber-input">
+            
+            <label class="text-[10px] uppercase tracking-widest text-gray-500">System Version</label>
+            <input type="text" id="m-ver" placeholder="1.21.4" class="cyber-input">
+            
+            <label class="text-[10px] uppercase tracking-widest text-gray-500">Classification (Category)</label>
+            <input type="text" id="m-cat" placeholder="Visual / Optimization" class="cyber-input">
+
+            <label class="text-[10px] uppercase tracking-widest text-gray-500">Data Description</label>
+            <textarea id="m-desc" placeholder="Explain what this module does..." class="cyber-input h-24"></textarea>
+
+            <label class="text-[10px] uppercase tracking-widest text-gray-500">Download Path (URL)</label>
+            <input type="text" id="m-url" placeholder="Paste your .jar link here" class="cyber-input">
+        </div>
+
+        <button onclick="deployModule()" id="main-btn" class="btn-v mt-6">DEPLOY TO DATABASE</button>
+        
+        <div id="msg" class="mt-6 text-sm text-center font-medium"></div>
+    </div>
+
+    <script>
+        // --- PASTE YOUR KEYS HERE ---
+        const SB_URL = 'https://zsdtrlcyzhcfgcwqudjd.supabase.co'; 
+        const SB_KEY = 'PASTE_YOUR_ANON_KEY_HERE'; 
+        // ----------------------------
+
+        const supabase = supabase.createClient(SB_URL, SB_KEY);
+
+        async function deployModule() {
+            const btn = document.getElementById('main-btn');
+            const msg = document.getElementById('msg');
+            
+            // Collect data
+            const payload = {
+                name: document.getElementById('m-name').value,
+                version: document.getElementById('m-ver').value,
+                category: document.getElementById('m-cat').value,
+                description: document.getElementById('m-desc').value,
+                download_url: document.getElementById('m-url').value
+            };
+
+            // Basic validation
+            if(!payload.name || !payload.download_url) {
+                msg.innerText = "❌ ERROR: Name and Download URL are required.";
+                msg.className = "mt-6 text-sm text-center text-red-500";
+                return;
+            }
+
+            btn.innerText = "ESTABLISHING UPLOAD...";
+            btn.disabled = true;
+
+            // Attempt Upload
+            // IMPORTANT: Make sure your table in Supabase is exactly "Modules"
+            const { error } = await supabase.from('Modules').insert([payload]);
+
+            if (error) {
+                console.error(error);
+                msg.innerText = "❌ FAILED: " + error.message;
+                msg.className = "mt-6 text-sm text-center text-red-400";
+            } else {
+                msg.innerText = "✅ SUCCESS: Module synced with AriseCore Nexus.";
+                msg.className = "mt-6 text-sm text-center text-green-400";
+                // Reset form
+                document.querySelectorAll('input, textarea').forEach(i => i.value = "");
+            }
+
+            btn.innerText = "DEPLOY TO DATABASE";
+            btn.disabled = false;
+        }
+
+        // Quick key check
+        if(SB_KEY === 'PASTE_YOUR_ANON_KEY_HERE') {
+            document.getElementById('setup-check').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

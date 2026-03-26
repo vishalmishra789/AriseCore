@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AriseCore | Next-Gen Modding</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+
+        :root {
+            --brand: #3b82f6;
+            --brand-glow: rgba(59, 130, 246, 0.5);
+            --bg: #030712;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: white;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* High-End Background */
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background-image: linear-gradient(to right, #1f2937 1px, transparent 1px), linear-gradient(to bottom, #1f2937 1px, transparent 1px);
+            background-size: 4rem 4rem;
+            mask-image: radial-gradient(ellipse 60% 50% at 50% 0%, #000 70%, transparent 100%);
+            opacity: 0.2;
+        }
+
+        /* Bento Card Style */
+        .bento-card {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .bento-card:hover {
+            border-color: var(--brand);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px -20px var(--brand-glow);
+        }
+
+        /* Tags */
+        .tag {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Animations */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .reveal { animation: slideUp 0.8s ease-out forwards; }
+
+        .stat-badge {
+            background: linear-gradient(90deg, #1e293b, #0f172a);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+
+    <nav class="sticky top-0 z-50 backdrop-blur-xl border-b border-white/5 py-4">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <div class="flex items-center gap-2">
+                    <img src="https://i.ibb.co/qYwWRJdc/2329cae5-609d-4603-9a11-c62104915de7.png" alt="Logo" class="h-8">
+                    <span class="text-xl font-extrabold tracking-tighter uppercase">Arise<span class="text-blue-500">Core</span></span>
+                </div>
+                <div class="hidden lg:flex gap-6 text-sm font-semibold text-slate-400">
+                    <a href="#" class="hover:text-white transition">Explore</a>
+                    <a href="#" class="hover:text-white transition">Creators</a>
+                    <a href="#" class="hover:text-white transition">News</a>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="p-2 text-slate-400 hover:text-white"><i class="fa-solid fa-bell"></i></button>
+                <button class="bg-blue-600 hover:bg-blue-500 px-6 py-2 rounded-xl font-bold text-sm transition">Sign Up</button>
+            </div>
+        </div>
+    </nav>
+
+    <header class="container mx-auto px-6 pt-24 pb-12 text-center reveal">
+        <h1 class="text-6xl md:text-8xl font-extrabold tracking-tighter mb-6">
+            Discover <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">100,000+</span> Creations
+        </h1>
+        <p class="text-slate-400 text-lg max-w-2xl mx-auto mb-10">
+            From magical biomes to cursed dungeons, find content to bring your gameplay to the next level with lightning-fast search.
+        </p>
+
+        <div class="max-w-3xl mx-auto bg-white/5 border border-white/10 p-2 rounded-2xl flex items-center focus-within:border-blue-500 transition shadow-2xl">
+            <i class="fa-solid fa-search ml-4 text-slate-500"></i>
+            <input type="text" id="searchInput" placeholder="Search mods, shaders, and plugins..." class="w-full bg-transparent p-4 outline-none text-white">
+            <kbd class="hidden md:block mr-4 bg-slate-800 px-2 py-1 rounded text-[10px] text-slate-500 border border-white/10">CTRL + K</kbd>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="lg:col-span-2 space-y-4">
+                <h3 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <i class="fa-solid fa-fire text-orange-500"></i> Popular Projects
+                </h3>
+                
+                <div id="projectContainer" class="space-y-3">
+                    </div>
+            </div>
+
+            <div class="space-y-6">
+                <h3 class="text-2xl font-bold mb-6">Notifications</h3>
+                <div class="bento-card p-6 space-y-4">
+                    <div class="flex gap-4 items-start">
+                        <div class="w-2 h-2 rounded-full bg-blue-500 mt-2"></div>
+                        <div>
+                            <p class="text-sm font-bold text-white">Falling Leaves Updated!</p>
+                            <p class="text-xs text-slate-500">Version 1.21.1 is now live</p>
+                            <p class="text-[10px] text-slate-600 mt-1">10 hours ago</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 items-start border-t border-white/5 pt-4">
+                        <div class="w-2 h-2 rounded-full bg-blue-500 mt-2"></div>
+                        <div>
+                            <p class="text-sm font-bold text-white">PokeGonk v1.0.3</p>
+                            <p class="text-xs text-slate-500">Release for Minecraft 1.21.1</p>
+                            <p class="text-[10px] text-slate-600 mt-1">12 hours ago</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bento-card p-6 bg-gradient-to-br from-blue-600/20 to-purple-600/20 border-blue-500/30">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-blue-400">Featured App</span>
+                    <h4 class="text-xl font-bold mt-2">AriseCore Desktop</h4>
+                    <p class="text-sm text-slate-400 mt-2 mb-4">The fastest way to manage your modpacks.</p>
+                    <button class="w-full bg-white text-black py-2 rounded-xl font-bold text-sm">Download App</button>
+                </div>
+            </div>
+        </div>
+
+        <section class="mt-32">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-black mb-4 tracking-tight">Built For <span class="text-blue-500">Creators</span></h2>
+                <p class="text-slate-400">Everything you need to grow your community and earn revenue.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bento-card p-8">
+                    <i class="fa-solid fa-chart-line text-blue-500 text-3xl mb-4"></i>
+                    <h4 class="text-xl font-bold mb-2">Detailed Analytics</h4>
+                    <p class="text-slate-400 text-sm">Get real-time reports on downloads, page views, and revenue growth.</p>
+                </div>
+                <div class="bento-card p-8">
+                    <i class="fa-solid fa-coins text-yellow-500 text-3xl mb-4"></i>
+                    <h4 class="text-xl font-bold mb-2">Monetization</h4>
+                    <p class="text-slate-400 text-sm">Earn ad revenue directly from your project pages with instant withdrawals.</p>
+                </div>
+                <div class="bento-card p-8">
+                    <i class="fa-solid fa-users text-purple-500 text-3xl mb-4"></i>
+                    <h4 class="text-xl font-bold mb-2">Team Management</h4>
+                    <p class="text-slate-400 text-sm">Collaborate with ease. Manage roles, permissions, and shared revenue.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="mt-32 border-t border-white/5 py-20 bg-slate-950/50 backdrop-blur-md">
+        <div class="container mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-12 text-sm">
+            <div class="col-span-2 md:col-span-1">
+                <img src="https://i.ibb.co/qYwWRJdc/2329cae5-609d-4603-9a11-c62104915de7.png" class="h-8 mb-6 grayscale opacity-50">
+                <p class="text-slate-500">© 2026 AriseCore. Open source mod distribution.</p>
+            </div>
+            <div>
+                <h5 class="font-bold mb-4 text-white">Product</h5>
+                <ul class="space-y-2 text-slate-500"><li>App</li><li>Hosting</li><li>Plus</li></ul>
+            </div>
+            <div>
+                <h5 class="font-bold mb-4 text-white">Resources</h5>
+                <ul class="space-y-2 text-slate-500"><li>API</li><li>Discord</li><li>Wiki</li></ul>
+            </div>
+            <div>
+                <h5 class="font-bold mb-4 text-white">Legal</h5>
+                <ul class="space-y-2 text-slate-500"><li>Privacy</li><li>Terms</li><li>DMCA</li></ul>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const projects = [
+            { name: "Falling Leaves", author: "Fourmisain", desc: "Adds neat little particle effects to leaf blocks.", dl: "20.01M", followers: "5,343", tags: ["Fabric", "Decoration"], icon: "https://cdn-raw.modrinth.com/data/u6S99fsY/28d0113f9f97607a38779b5b4a97495919011e40.png" },
+            { name: "Better Leaves", author: "Motschen", desc: "Improves appearance with high mod compatibility.", dl: "13.06M", followers: "3,716", tags: ["Resource Pack", "Realistic"], icon: "https://cdn-raw.modrinth.com/data/u6S99fsY/28d0113f9f97607a38779b5b4a97495919011e40.png" },
+            { name: "Leaves Be Gone", author: "Fuzs", desc: "Quick leaf decay from cutting down trees.", dl: "9.15M", followers: "1,322", tags: ["Forge", "Fabric", "Server"], icon: "https://cdn-raw.modrinth.com/data/u6S99fsY/28d0113f9f97607a38779b5b4a97495919011e40.png" }
+        ];
+
+        function renderProjects() {
+            const container = document.getElementById('projectContainer');
+            container.innerHTML = projects.map(p => `
+                <div class="bento-card p-5 flex gap-6 items-center group cursor-pointer">
+                    <img src="${p.icon}" class="w-16 h-16 rounded-2xl bg-slate-800 p-2 border border-white/5">
+                    <div class="flex-grow">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="text-lg font-extrabold group-hover:text-blue-400 transition">${p.name}</h4>
+                                <p class="text-xs text-slate-500 mb-2">by <span class="text-slate-300 font-bold">${p.author}</span></p>
+                            </div>
+                            <div class="flex flex-col items-end">
+                                <span class="text-sm font-bold text-white">${p.dl}</span>
+                                <span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest leading-none">Downloads</span>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-400 mb-3 line-clamp-1">${p.desc}</p>
+                        <div class="flex gap-2">
+                            ${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        renderProjects();
+    </script>
+</body>
+</html>

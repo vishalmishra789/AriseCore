@@ -1,139 +1,82 @@
 /**
- * ARISECORE - CENTRAL DATA & LOGIC
- * This script handles rendering, searching, and mod details.
+ * AriseCore | Nexus Logic Engine
+ * Version: 2.1.0 (Cyber-Quartz Edition)
  */
 
-// 1. PROJECT DATABASE
-// To add more mods, just copy a block and change the details.
-const projects = [
-    {
-        id: "falling-leaves",
-        name: "Falling Leaves",
-        author: "Fourmisain",
-        description: "Adds a neat little particle effect to leaf blocks, making the world feel alive. Highly customizable and performance friendly.",
-        downloads: "20.01M",
-        followers: "5,343",
-        updated: "3 months ago",
-        tags: ["Fabric", "Decoration", "Client"],
-        icon: "https://api.dicebear.com/7.x/identicon/svg?seed=leaves",
-        isFeatured: true
-    },
-    {
-        id: "better-leaves",
-        name: "Motschen's Better Leaves",
-        author: "Motschen",
-        description: "Improves the appearance of leaves with high mod compatibility and performance! Works with most biomes.",
-        downloads: "13.06M",
-        followers: "3,716",
-        updated: "2 months ago",
-        tags: ["Resource Pack", "Realistic"],
-        icon: "https://api.dicebear.com/7.x/identicon/svg?seed=better",
-        isFeatured: false
-    },
-    {
-        id: "leaves-be-gone",
-        name: "Leaves Be Gone",
-        author: "Fuzs",
-        description: "Quick leaf decay from cutting down trees. Built for fast performance and mod compat! Supports Forge and Fabric.",
-        downloads: "9.15M",
-        followers: "1,322",
-        updated: "3 months ago",
-        tags: ["Server", "Fabric", "Forge"],
-        icon: "https://api.dicebear.com/7.x/identicon/svg?seed=decay",
-        isFeatured: false
-    }
-];
-
-// 2. CORE FUNCTIONS
-
-/**
- * Renders the list of mods to the main grid
- */
-function renderProjects(filterTerm = "") {
-    const container = document.getElementById('projectContainer');
-    if (!container) return;
-
-    // Filter logic
-    const filtered = projects.filter(p => 
-        p.name.toLowerCase().includes(filterTerm.toLowerCase()) ||
-        p.tags.some(tag => tag.toLowerCase().includes(filterTerm.toLowerCase()))
+document.addEventListener('DOMContentLoaded', () => {
+    // Initial System Boot Log
+    console.log(
+        "%c ARISECORE %c SYSTEM OPERATIONAL %c",
+        "background: #8b5cf6; color: #fff; font-weight: bold; padding: 2px 8px; border-radius: 4px 0 0 4px;",
+        "background: #1e1b4b; color: #8b5cf6; font-weight: bold; padding: 2px 8px; border-radius: 0 4px 4px 0;",
+        "background: transparent;"
     );
 
-    // Generate HTML
-    container.innerHTML = filtered.map(p => `
-        <div onclick="openDetails('${p.id}')" class="bento-card p-5 flex gap-6 items-center group cursor-pointer reveal">
-            <img src="${p.icon}" class="w-16 h-16 rounded-2xl bg-slate-800 p-2 border border-white/5 shadow-inner">
-            <div class="flex-grow">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h4 class="text-lg font-extrabold group-hover:text-blue-400 transition">${p.name}</h4>
-                        <p class="text-xs text-slate-500 mb-2 font-semibold tracking-tight">by ${p.author}</p>
-                    </div>
-                    <div class="flex flex-col items-end">
-                        <span class="text-sm font-bold text-white">${p.downloads}</span>
-                        <span class="text-[9px] text-slate-500 uppercase font-black tracking-widest leading-none">DLs</span>
-                    </div>
-                </div>
-                <p class="text-sm text-slate-400 mb-3 line-clamp-1 opacity-80">${p.description}</p>
-                <div class="flex gap-2">
-                    ${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}
-                </div>
-            </div>
-        </div>
-    `).join('');
+    // Module Search Logic
+    const searchInput = document.getElementById('moduleSearch');
+    const moduleContainer = document.querySelector('#p-mods .max-w-7xl');
 
-    // If no results
-    if (filtered.length === 0) {
-        container.innerHTML = `<div class="text-center py-20 text-slate-500 font-bold uppercase tracking-widest">No projects found</div>`;
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll('.cyber-card');
+
+            cards.forEach(card => {
+                // Only filter cards within the Modules page
+                if (card.closest('#p-mods')) {
+                    const title = card.querySelector('h3, h4')?.innerText.toLowerCase() || "";
+                    const desc = card.querySelector('p')?.innerText.toLowerCase() || "";
+                    
+                    if (title.includes(term) || desc.includes(term)) {
+                        card.style.display = 'flex';
+                        card.style.opacity = '1';
+                    } else {
+                        card.style.display = 'none';
+                        card.style.opacity = '0';
+                    }
+                }
+            });
+        });
     }
-}
+});
 
 /**
- * Populates and opens the Detail Modal
+ * Handles Single Page Application (SPA) Routing
+ * @param {string} id - The ID of the section to display
  */
-window.openDetails = function(id) {
-    const p = projects.find(item => item.id === id);
-    if (!p) return;
+function showPage(id) {
+    const sections = document.querySelectorAll('.page-section');
+    const navLinks = document.querySelectorAll('.nav-link');
 
-    // Fill the Modal
-    document.getElementById('detailTitle').innerText = p.name;
-    document.getElementById('detailAuthor').innerText = `by ${p.author}`;
-    document.getElementById('detailDesc').innerText = p.description;
-    document.getElementById('detailDownloads').innerText = p.downloads;
-    document.getElementById('detailFollowers').innerText = p.followers;
-    document.getElementById('detailIcon').src = p.icon;
-
-    // Show it
-    const modal = document.getElementById('detailView');
-    modal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden'; // Lock scroll
-}
-
-/**
- * Closes the Detail Modal
- */
-window.closeDetails = function() {
-    const modal = document.getElementById('detailView');
-    modal.classList.add('hidden');
-    document.body.style.overflow = 'auto'; // Unlock scroll
-}
-
-// 3. EVENT LISTENERS & INIT
-
-// Search input listener
-const searchInput = document.getElementById('searchInput');
-if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-        renderProjects(e.target.value);
+    // 1. Clear Active States
+    sections.forEach(section => {
+        section.classList.remove('active');
+        section.style.display = 'none';
     });
+    
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+    });
+
+    // 2. Activate Target Page
+    const targetPage = document.getElementById('p-' + id);
+    const targetNav = document.getElementById('n-' + id);
+
+    if (targetPage) {
+        targetPage.style.display = 'block';
+        // Small timeout to allow the fade-in animation to trigger correctly
+        setTimeout(() => {
+            targetPage.classList.add('active');
+        }, 10);
+    }
+
+    if (targetNav) {
+        targetNav.classList.add('active');
+    }
+
+    // 3. Telemetry Log
+    console.log(`%c[SYSTEM]%c Navigating to Nexus Cluster: ${id.toUpperCase()}`, "color: #8b5cf6; font-weight: bold;", "color: #94a3b8;");
+
+    // 4. Smooth reset to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-
-// Keyboard shortcuts (ESC to close modal)
-document.addEventListener('keydown', (e) => {
-    if (e.key === "Escape") closeDetails();
-});
-
-// Initial Render on load
-document.addEventListener('DOMContentLoaded', () => {
-    renderProjects();
-});

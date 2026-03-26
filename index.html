@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AriseCore | Nexus</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
         
         :root { 
-            --accent: #8b5cf6; /* Electric Violet */
+            --accent: #8b5cf6; 
             --accent-glow: rgba(139, 92, 246, 0.4);
             --bg: #050505; 
             --panel: rgba(20, 20, 25, 0.7);
@@ -25,13 +27,12 @@
             min-height: 100vh;
         }
 
-        /* Glassmorphism Navbar */
+        /* Navigation */
         .glass-nav {
             background: rgba(5, 5, 5, 0.8);
             border-bottom: 1px solid rgba(139, 92, 246, 0.2);
             backdrop-filter: blur(12px);
         }
-
         .nav-link {
             position: relative;
             font-weight: 500;
@@ -39,6 +40,7 @@
             transition: 0.3s;
             color: #94a3b8;
             font-size: 0.75rem;
+            cursor: pointer;
         }
         .nav-link:hover, .nav-link.active { color: #fff; }
         .nav-link.active::before {
@@ -46,7 +48,7 @@
             background: var(--accent); box-shadow: 0 0 10px var(--accent);
         }
 
-        /* Cyber Card Design */
+        /* Cyber Cards */
         .cyber-card {
             background: var(--panel);
             border: 1px solid rgba(255, 255, 255, 0.05);
@@ -61,12 +63,12 @@
             background: rgba(25, 25, 30, 0.95);
         }
 
-        /* Rank Cards (Holographic Effect) */
-        .rank-s { border-left: 4px solid #ef4444; background: linear-gradient(90deg, rgba(239, 68, 68, 0.1), transparent); }
-        .rank-a { border-left: 4px solid #f59e0b; background: linear-gradient(90deg, rgba(245, 158, 11, 0.1), transparent); }
-        .rank-b { border-left: 4px solid #3b82f6; background: linear-gradient(90deg, rgba(59, 130, 246, 0.1), transparent); }
+        /* Tier Ranking Colors */
+        .rank-s { border-left: 4px solid #ef4444; background: linear-gradient(90deg, rgba(239, 68, 68, 0.05), transparent); }
+        .rank-a { border-left: 4px solid #f59e0b; background: linear-gradient(90deg, rgba(245, 158, 11, 0.05), transparent); }
+        .rank-b { border-left: 4px solid #3b82f6; background: linear-gradient(90deg, rgba(59, 130, 246, 0.05), transparent); }
 
-        /* Arise Violet Button */
+        /* Buttons */
         .btn-violet {
             background: var(--accent);
             color: #fff;
@@ -83,20 +85,23 @@
             filter: brightness(1.2);
         }
 
-        .page-section { display: none; animation: slideUp 0.6s ease-out forwards; }
+        /* Page Transitions */
+        .page-section { display: none; animation: slideUp 0.5s ease-out forwards; }
         .page-section.active { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
         .search-box {
             background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(139, 92, 246, 0.3);
+            border: 1px solid rgba(139, 92, 246, 0.2);
             border-radius: 4px;
+            color: white;
         }
+        .search-box:focus { border-color: var(--accent); outline: none; background: rgba(255, 255, 255, 0.05); }
     </style>
 </head>
 <body>
 
-    <nav class="glass-nav sticky top-0 z-50 px-12 py-5 flex items-center justify-between">
+    <nav class="glass-nav sticky top-0 z-50 px-8 md:px-12 py-5 flex items-center justify-between">
         <div class="flex items-center gap-12">
             <div onclick="showPage('home')" class="flex items-center gap-3 cursor-pointer group">
                 <div class="w-10 h-10 border-2 border-violet-500 flex items-center justify-center rotate-45 group-hover:rotate-180 transition-all duration-500">
@@ -104,155 +109,101 @@
                 </div>
                 <span class="font-bold text-2xl tracking-widest uppercase">Arise<span class="text-violet-500">Core</span></span>
             </div>
-            <div class="hidden md:flex gap-8 uppercase tracking-[0.2em]">
-                <a onclick="showPage('home')" id="n-home" class="nav-link active cursor-pointer">Terminal</a>
-                <a onclick="showPage('mods')" id="n-mods" class="nav-link cursor-pointer">Modules</a>
-                <a onclick="showPage('textures')" id="n-textures" class="nav-link cursor-pointer">Visuals</a>
-                <a onclick="showPage('tiers')" id="n-tiers" class="nav-link cursor-pointer">Ranking</a>
+            <div class="hidden lg:flex gap-8 uppercase tracking-[0.2em]">
+                <a onclick="showPage('home')" id="n-home" class="nav-link active">Terminal</a>
+                <a onclick="showPage('mods')" id="n-mods" class="nav-link">Modules</a>
+                <a onclick="showPage('textures')" id="n-textures" class="nav-link">Visuals</a>
+                <a onclick="showPage('tiers')" id="n-tiers" class="nav-link">Ranking</a>
             </div>
         </div>
         <div class="flex gap-6 items-center">
             <a href="https://discord.gg/BS6YYDpK6z" target="_blank" class="text-slate-400 hover:text-violet-400 transition"><i class="fa-brands fa-discord text-xl"></i></a>
-            <button class="btn-violet">SYSTEM LOGIN</button>
+            <button class="btn-violet hidden sm:block">SYSTEM LOGIN</button>
         </div>
     </nav>
 
     <div id="p-home" class="page-section active">
-        <header class="max-w-7xl mx-auto px-6 py-32 relative">
+        <header class="max-w-7xl mx-auto px-6 py-24 md:py-32">
             <div class="max-w-3xl">
-                <h1 class="text-7xl md:text-8xl font-light leading-none mb-8">
-                    Elevate your <br> <span class="font-bold text-violet-500 italic">Minecraft</span> experience.
+                <h1 class="text-6xl md:text-8xl font-light leading-none mb-8">
+                    Elevate your <br> <span class="font-bold text-violet-500 italic">Minecraft</span>.
                 </h1>
-                <p class="text-slate-400 text-xl mb-10 leading-relaxed border-l-2 border-violet-500 pl-6">
-                    A high-performance ecosystem for the next generation of players. 
-                    Built for speed, refined for precision.
+                <p class="text-slate-400 text-lg md:text-xl mb-10 leading-relaxed border-l-2 border-violet-500 pl-6">
+                    A high-performance ecosystem built for speed. Refined, open-source, and optimized for the next generation of players.
                 </p>
-                <div class="flex gap-6">
+                <div class="flex flex-wrap gap-4">
                     <button onclick="showPage('mods')" class="btn-violet">EXPLORE MODULES</button>
-                    <button onclick="showPage('tiers')" class="px-8 py-3 border border-white/10 hover:bg-white/5 transition uppercase text-xs font-bold tracking-widest">Global Rankings</button>
+                    <button onclick="showPage('tiers')" class="px-8 py-3 border border-white/10 hover:bg-white/5 transition uppercase text-[10px] font-bold tracking-widest">Global Leaderboard</button>
                 </div>
             </div>
         </header>
 
-        <section class="max-w-7xl mx-auto px-6 py-24 border-t border-white/5">
+        <section class="max-w-7xl mx-auto px-6 py-20 border-t border-white/5">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-16 mb-24">
                 <div>
-                    <h2 class="text-3xl font-bold mb-4 uppercase">100,000+ Assets</h2>
-                    <p class="text-slate-500 italic">"From magical biomes to cursed dungeons, find content to bring your gameplay to the next level."</p>
+                    <h2 class="text-3xl font-bold mb-4 uppercase tracking-tighter">100,000+ Discoveries</h2>
+                    <p class="text-slate-500 leading-relaxed">From magical biomes to cursed dungeons, find the content that pushes your gameplay to the next level.</p>
                 </div>
                 <div>
-                    <h2 class="text-3xl font-bold mb-4 uppercase">Neural Search</h2>
-                    <p class="text-slate-500 italic">"Find what you want, quickly and easily. Lightning-fast indexing and powerful filters."</p>
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="cyber-card p-6">
-                    <h4 class="text-violet-500 font-bold mb-2">BetterFPS</h4>
-                    <p class="text-sm text-slate-400">Decouples frame reporting from render threads.</p>
-                </div>
-                <div class="cyber-card p-6">
-                    <h4 class="text-violet-500 font-bold mb-2">Falling Leaves</h4>
-                    <p class="text-sm text-slate-400">Advanced foliage particle simulation.</p>
-                </div>
-                <div class="cyber-card p-6">
-                    <h4 class="text-violet-500 font-bold mb-2">Arise Sync</h4>
-                    <p class="text-sm text-slate-400">Live stat streaming to the Tier List.</p>
-                </div>
-            </div>
-        </section>
-    </div>
-
-    <div id="p-tiers" class="page-section">
-        <section class="max-w-7xl mx-auto px-6 py-24">
-            <div class="text-center mb-20">
-                <h2 class="text-6xl font-black uppercase mb-4 tracking-tighter">Global <span class="text-violet-500">Tier List</span></h2>
-                <p class="text-slate-400 mb-8">Competitive ranking based on AriseCore performance metrics.</p>
-                <a href="http://arisetierlist.ilja.org/" target="_blank" class="btn-violet">View Full Leaderboard</a>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="cyber-card p-8 rank-s">
-                    <div class="flex justify-between items-start mb-6">
-                        <span class="text-4xl font-black text-red-500">S</span>
-                        <span class="text-[10px] bg-red-500/10 text-red-500 px-2 py-1 rounded">ELITE</span>
-                    </div>
-                    <h4 class="text-xl font-bold mb-4">God-Mode Stability</h4>
-                    <p class="text-sm text-slate-400">Players maintaining >240FPS with zero jitter under AriseCore modules.</p>
-                </div>
-
-                <div class="cyber-card p-8 rank-a">
-                    <div class="flex justify-between items-start mb-6">
-                        <span class="text-4xl font-black text-amber-500">A</span>
-                        <span class="text-[10px] bg-amber-500/10 text-amber-500 px-2 py-1 rounded">VETERAN</span>
-                    </div>
-                    <h4 class="text-xl font-bold mb-4">High Fidelity</h4>
-                    <p class="text-sm text-slate-400">Optimal performance and accurate Tier List stat pushing.</p>
-                </div>
-
-                <div class="cyber-card p-8 rank-b">
-                    <div class="flex justify-between items-start mb-6">
-                        <span class="text-4xl font-black text-blue-500">B</span>
-                        <span class="text-[10px] bg-blue-500/10 text-blue-500 px-2 py-1 rounded">STABLE</span>
-                    </div>
-                    <h4 class="text-xl font-bold mb-4">System Standard</h4>
-                    <p class="text-sm text-slate-400">Standard users utilizing basic optimization modules.</p>
+                    <h2 class="text-3xl font-bold mb-4 uppercase tracking-tighter">Instant Indexing</h2>
+                    <p class="text-slate-500 leading-relaxed">Lightning-fast search and powerful filtering allows you to find modules precisely as you type.</p>
                 </div>
             </div>
 
-            <div class="mt-20 cyber-card overflow-hidden">
-                <table class="w-full text-left">
-                    <thead class="bg-white/5 text-[10px] uppercase tracking-widest text-slate-500">
-                        <tr>
-                            <th class="p-6">User Identity</th>
-                            <th class="p-6">Efficiency</th>
-                            <th class="p-6">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-sm text-slate-300">
-                        <tr class="border-t border-white/5">
-                            <td class="p-6 font-bold text-violet-400">Arise_Nexus</td>
-                            <td class="p-6">99.8%</td>
-                            <td class="p-6 text-red-500 font-bold">S-RANK</td>
-                        </tr>
-                        <tr class="border-t border-white/5">
-                            <td class="p-6 font-bold">VoidRunner</td>
-                            <td class="p-6">94.2%</td>
-                            <td class="p-6 text-amber-500 font-bold">A-RANK</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <div id="featuredMods" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                </div>
         </section>
     </div>
 
     <div id="p-mods" class="page-section">
-        <section class="max-w-7xl mx-auto px-6 py-24">
-            <h2 class="text-5xl font-bold mb-12">AVAILABLE <span class="text-violet-500">MODULES</span></h2>
-            <div class="cyber-card p-10 flex flex-col md:flex-row gap-10 items-center">
-                <div class="w-24 h-24 border-2 border-violet-500 flex items-center justify-center text-4xl text-violet-500"><i class="fa-solid fa-gauge"></i></div>
-                <div>
-                    <h3 class="text-3xl font-bold">BetterFPS</h3>
-                    <p class="text-slate-400 mt-2">Decouples frame reporting from render threads for zero-lag UI display.</p>
-                </div>
-                <button class="btn-violet md:ml-auto">DEPLOY SYSTEM</button>
+        <section class="max-w-7xl mx-auto px-6 py-20">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 gap-6">
+                <h2 class="text-5xl font-bold uppercase">Nexus <span class="text-violet-500">Modules</span></h2>
+                <input type="text" id="moduleSearch" placeholder="Filter systems..." class="search-box px-6 py-3 w-full md:w-80 text-sm transition">
+            </div>
+            
+            <div id="modList" class="space-y-6">
+                <div class="text-center py-20 text-slate-500 animate-pulse">Establishing Connection to Database...</div>
             </div>
         </section>
     </div>
 
-    <script>
-        function showPage(id) {
-            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-            
-            const target = document.getElementById('p-' + id);
-            const nav = document.getElementById('n-' + id);
-            
-            if(target) target.classList.add('active');
-            if(nav) nav.classList.add('active');
-            
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    </script>
+    <div id="p-textures" class="page-section">
+        <section class="max-w-7xl mx-auto px-6 py-20">
+            <h2 class="text-5xl font-bold uppercase mb-12">Visual <span class="text-violet-500">Overhauls</span></h2>
+            <div id="textureList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                </div>
+        </section>
+    </div>
+
+    <div id="p-tiers" class="page-section">
+        <section class="max-w-7xl mx-auto px-6 py-20">
+            <div class="text-center mb-16">
+                <h2 class="text-5xl md:text-6xl font-black uppercase mb-4 tracking-tighter">Arise <span class="text-violet-500">Tier List</span></h2>
+                <p class="text-slate-400 mb-8 max-w-xl mx-auto">Competitive player rankings based on AriseCore system efficiency and community contribution.</p>
+                <a href="http://arisetierlist.ilja.org/" target="_blank" class="btn-violet">Official Leaderboard</a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="cyber-card p-8 rank-s">
+                    <span class="text-4xl font-black text-red-500 block mb-4">S</span>
+                    <h4 class="text-xl font-bold mb-2 uppercase">Elite Nexus</h4>
+                    <p class="text-sm text-slate-500">Peak performance modules and top-tier community developers.</p>
+                </div>
+                <div class="cyber-card p-8 rank-a">
+                    <span class="text-4xl font-black text-amber-500 block mb-4">A</span>
+                    <h4 class="text-xl font-bold mb-2 uppercase">Veteran Sync</h4>
+                    <p class="text-sm text-slate-500">Highly stable assets with verified efficiency metrics.</p>
+                </div>
+                <div class="cyber-card p-8 rank-b">
+                    <span class="text-4xl font-black text-blue-500 block mb-4">B</span>
+                    <h4 class="text-xl font-bold mb-2 uppercase">Stable Node</h4>
+                    <p class="text-sm text-slate-500">General purpose optimization and decorative additions.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="app.js"></script>
 </body>
 </html>

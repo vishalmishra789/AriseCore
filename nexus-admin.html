@@ -13,8 +13,9 @@
         .cyber-card { background: #0a0a0f; border: 1px solid #1e1e26; border-radius: 12px; }
         .input-box { background: #050507; border: 1px solid #2d2d3d; color: white; padding: 10px; border-radius: 6px; width: 100%; font-size: 13px; }
         .input-box:focus { border-color: #8b5cf6; outline: none; box-shadow: 0 0 10px rgba(139, 92, 246, 0.2); }
-        .btn-primary { background: #7c3aed; font-weight: bold; transition: 0.3s; cursor: pointer; }
-        .btn-primary:hover { background: #6d28d9; transform: scale(1.02); }
+        .btn-primary { background: #7c3aed; font-weight: bold; transition: 0.3s; cursor: pointer; color: white; }
+        .btn-primary:hover:not(:disabled) { background: #6d28d9; transform: scale(1.02); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
     </style>
 </head>
@@ -30,7 +31,7 @@
         <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
             <div>
                 <h1 class="text-3xl font-black text-white italic">ARISE<span class="text-violet-500">CORE</span> ADMIN</h1>
-                <p id="net-status" class="text-xs text-gray-500 uppercase tracking-widest mt-1"><span class="status-dot bg-yellow-500 mr-2"></span>Connecting to Satellite...</p>
+                <p id="net-status" class="text-xs text-gray-500 uppercase tracking-widest mt-1"><span class="status-dot bg-yellow-500 mr-2"></span>Connecting...</p>
             </div>
             <button onclick="location.reload()" class="bg-red-900/20 text-red-500 border border-red-500/30 px-6 py-2 rounded-full text-xs font-bold hover:bg-red-500 hover:text-white transition">SHUTDOWN</button>
         </header>
@@ -40,8 +41,11 @@
             <div class="lg:col-span-1 cyber-card p-6 border-l-4 border-l-violet-600">
                 <h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i class="fa-solid fa-plus-circle"></i> Deploy New Mod</h3>
                 <div class="space-y-4">
-                    <input type="text" id="m-name" placeholder="Module Name" class="input-box">
-                    <input type="text" id="m-ver" placeholder="Version (e.g. 1.21)" class="input-box">
+                    <div>
+                        <label class="text-[10px] text-gray-500 mb-1 block">MOD NAME (SAVES TO ID)</label>
+                        <input type="text" id="m-name" placeholder="e.g. BetterFPS" class="input-box">
+                    </div>
+                    <input type="text" id="m-ver" placeholder="Version (e.g. 1.21.4)" class="input-box">
                     <select id="m-cat" class="input-box">
                         <option value="Optimization">Optimization</option>
                         <option value="Visuals">Visuals</option>
@@ -63,77 +67,116 @@
                     <table class="w-full text-left text-sm">
                         <thead class="text-gray-500 border-b border-gray-800">
                             <tr>
-                                <th class="pb-3">Name</th>
+                                <th class="pb-3">Name (ID)</th>
                                 <th class="pb-3">Version</th>
                                 <th class="pb-3">Category</th>
-                                <th class="pb-3">Action</th>
+                                <th class="pb-3 text-right">Action</th>
                             </tr>
                         </thead>
                         <tbody id="module-list" class="divide-y divide-gray-800">
-                            </tbody>
+                            <tr><td colspan="4" class="py-10 text-center opacity-30 italic">Login to sync data...</td></tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
-
         </div>
     </div>
 
-   <script>
-    // --- FIXED CONFIGURATION ---
-    const SB_URL = "https://zsdtrlcyzhcfgcwqudjd.supabase.co"; // Fixed the 'r' typo
-    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzZHRsY3l6aGNmZ2N3cXVjZGpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NDY2MDYsImV4cCI6MjA5MDEyMjYwNn0.IgjMXn3NbVw5nt8CvrJksD4NTEr26nLGwdytUgWFLe0";
+    <script>
+        // CONFIG - FIXED URL AND KEY
+        const SB_URL = "https://zsdtrlcyzhcfgcwqudjd.supabase.co"; 
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzZHRsY3l6aGNmZ2N3cXVjZGpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NDY2MDYsImV4cCI6MjA5MDEyMjYwNn0.IgjMXn3NbVw5nt8CvrJksD4NTEr26nLGwdytUgWFLe0";
 
-    const _supabase = window.supabase.createClient(SB_URL, SB_KEY);
+        const _supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
-    // New Feature: Auto-Load on Login
-    async function login() {
-        const pass = document.getElementById('pass').value;
-        if(pass === "VISHAL@2008") {
-            document.getElementById('auth-gate').style.display = 'none';
-            document.getElementById('admin-panel').classList.remove('hidden');
+        function login() {
+            const pass = document.getElementById('pass').value;
+            if(pass === "VISHAL@2008") {
+                document.getElementById('auth-gate').style.display = 'none';
+                document.getElementById('admin-panel').classList.remove('hidden');
+                loadModules();
+            } else { alert("ACCESS DENIED"); }
+        }
+
+        async function loadModules() {
+            const status = document.getElementById('net-status');
+            const list = document.getElementById('module-list');
             
-            // Log successful connection
-            console.log("Nexus Socket Optimized. Fetching modules...");
-            loadModules(); 
-        } else {
-            alert("SYSTEM ERROR: Invalid Access Key");
+            status.innerHTML = `<span class="status-dot bg-blue-500 animate-pulse mr-2"></span>SYNCING...`;
+
+            try {
+                const { data, error } = await _supabase.from('Modules').select('*');
+                
+                if(error) throw error;
+
+                status.innerHTML = `<span class="status-dot bg-green-500 mr-2"></span>DATABASE ONLINE | ${data.length} MODS`;
+                
+                list.innerHTML = data.map(m => `
+                    <tr class="hover:bg-white/5 transition">
+                        <td class="py-4 text-violet-400 font-bold">${m.id}</td>
+                        <td class="py-4 text-gray-400">${m.version}</td>
+                        <td class="py-4"><span class="bg-violet-900/30 text-violet-400 px-2 py-1 rounded text-[10px] uppercase">${m.category}</span></td>
+                        <td class="py-4 text-right">
+                            <button onclick="deleteMod('${m.id}')" class="text-red-500 hover:text-red-400 px-3 transition">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+                if(data.length === 0) list.innerHTML = `<tr><td colspan="4" class="py-10 text-center opacity-30 italic">No mods found in database.</td></tr>`;
+                
+            } catch (err) {
+                status.innerHTML = `<span class="status-dot bg-red-500 mr-2"></span>OFFLINE: ${err.message}`;
+                console.error("Fetch failed:", err);
+            }
         }
-    }
 
-    // New Feature: Dashboard View
-    async function loadModules() {
-        const listContainer = document.getElementById('module-list');
-        listContainer.innerHTML = "<tr><td colspan='4' class='text-center py-4 opacity-50'>Scanning Database...</td></tr>";
+        async function addModule() {
+            const btn = document.getElementById('add-btn');
+            
+            // Note: Saving Name to the 'id' column as per your screenshot
+            const modData = {
+                id: document.getElementById('m-name').value, 
+                version: document.getElementById('m-ver').value,
+                category: document.getElementById('m-cat').value,
+                description: document.getElementById('m-desc').value,
+                download_url: document.getElementById('m-url').value,
+                image_url: document.getElementById('m-img').value || ""
+            };
 
-        const { data, error } = await _supabase.from('Modules').select('*');
+            if(!modData.id || !modData.download_url) return alert("Error: Mod Name and Download URL are mandatory.");
 
-        if (error) {
-            console.error("Sync Error:", error.message);
-            return;
+            btn.disabled = true;
+            btn.innerHTML = "UPLOADING...";
+
+            try {
+                const { error } = await _supabase.from('Modules').insert([modData]);
+                if(error) throw error;
+
+                alert("SUCCESS: Mod Deployed!");
+                loadModules();
+                // Reset inputs
+                document.querySelectorAll('.input-box').forEach(i => { if(i.tagName !== 'SELECT') i.value = ""; });
+            } catch (err) {
+                alert("DEPLOY FAILED: " + err.message);
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-rocket"></i> PUSH TO DATABASE';
+            }
         }
 
-        // Updates the table with live data
-        listContainer.innerHTML = data.map(mod => `
-            <tr class="border-b border-white/5 hover:bg-white/5 transition">
-                <td class="py-3 font-bold text-violet-400">${mod.name}</td>
-                <td class="py-3 text-gray-400 text-xs">${mod.version}</td>
-                <td class="py-3"><span class="bg-gray-800 px-2 py-1 rounded text-[10px] uppercase">${mod.category}</span></td>
-                <td class="py-3 text-right">
-                    <button onclick="deleteMod(${mod.id})" class="text-red-500 hover:text-red-300 transition">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </button>
-                </td>
-            </tr>
-        `).join('');
-    }
-
-    // New Feature: Quick Delete
-    async function deleteMod(id) {
-        if(confirm("Confirm Deletion from AriseCore?")) {
-            const { error } = await _supabase.from('Modules').delete().eq('id', id);
-            if(!error) loadModules(); // Refresh list
+        async function deleteMod(modId) {
+            if(confirm(`Permanently delete "${modId}"?`)) {
+                try {
+                    const { error } = await _supabase.from('Modules').delete().eq('id', modId);
+                    if(error) throw error;
+                    loadModules();
+                } catch (err) {
+                    alert("Delete failed: " + err.message);
+                }
+            }
         }
-    }
-</script>
+    </script>
 </body>
 </html>

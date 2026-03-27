@@ -12,11 +12,10 @@
         body { background: #020203; color: #e2e8f0; font-family: 'JetBrains+Mono', monospace; }
         .cyber-card { background: #0a0a0f; border: 1px solid #1e1e26; border-radius: 12px; }
         .input-box { background: #050507; border: 1px solid #2d2d3d; color: white; padding: 10px; border-radius: 6px; width: 100%; font-size: 13px; }
-        .input-box:focus { border-color: #8b5cf6; outline: none; box-shadow: 0 0 10px rgba(139, 92, 246, 0.2); }
-        .btn-primary { background: #7c3aed; font-weight: bold; transition: 0.3s; cursor: pointer; color: white; }
-        .btn-primary:hover:not(:disabled) { background: #6d28d9; transform: scale(1.02); }
-        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .input-box:focus { border-color: #8b5cf6; outline: none; }
+        .btn-primary { background: #7c3aed; font-weight: bold; cursor: pointer; color: white; transition: 0.3s; }
+        .btn-primary:hover:not(:disabled) { background: #6d28d9; transform: translateY(-1px); }
+        .btn-primary:disabled { opacity: 0.5; }
     </style>
 </head>
 <body class="p-4 md:p-10">
@@ -24,58 +23,51 @@
     <div id="auth-gate" class="max-w-md mx-auto mt-20 text-center cyber-card p-8">
         <h1 class="text-2xl font-bold text-violet-500 mb-6 tracking-tighter">NEXUS LOGIN</h1>
         <input type="password" id="pass" placeholder="Enter System Key..." class="input-box text-center mb-4">
-        <button onclick="login()" class="btn-primary w-full py-3 rounded-lg">Access Terminal</button>
+        <button onclick="login()" class="btn-primary w-full py-3 rounded-lg text-sm uppercase tracking-widest">Access Terminal</button>
     </div>
 
     <div id="admin-panel" class="hidden max-w-6xl mx-auto animate-in fade-in duration-700">
         <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
             <div>
-                <h1 class="text-3xl font-black text-white italic">ARISE<span class="text-violet-500">CORE</span> ADMIN</h1>
-                <p id="net-status" class="text-xs text-gray-500 uppercase tracking-widest mt-1"><span class="status-dot bg-yellow-500 mr-2"></span>Connecting...</p>
+                <h1 class="text-3xl font-black text-white italic tracking-tighter">ARISE<span class="text-violet-500">CORE</span> ADMIN</h1>
+                <p id="net-status" class="text-[10px] text-gray-500 uppercase tracking-[0.3em] mt-1">Status: Initializing...</p>
             </div>
-            <button onclick="location.reload()" class="bg-red-900/20 text-red-500 border border-red-500/30 px-6 py-2 rounded-full text-xs font-bold hover:bg-red-500 hover:text-white transition">SHUTDOWN</button>
+            <button onclick="location.reload()" class="bg-red-900/10 text-red-500 border border-red-500/20 px-4 py-1 rounded text-[10px] hover:bg-red-500 hover:text-white transition">SHUTDOWN</button>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            <div class="lg:col-span-1 cyber-card p-6 border-l-4 border-l-violet-600">
-                <h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i class="fa-solid fa-plus-circle"></i> Deploy New Mod</h3>
+            <div class="lg:col-span-1 cyber-card p-6 border-t-2 border-t-violet-600">
+                <h3 class="text-sm font-bold mb-6 text-gray-400 uppercase tracking-widest">Deploy Module</h3>
                 <div class="space-y-4">
-                    <div>
-                        <label class="text-[10px] text-gray-500 mb-1 block">MOD NAME (SAVES TO ID)</label>
-                        <input type="text" id="m-name" placeholder="e.g. BetterFPS" class="input-box">
-                    </div>
-                    <input type="text" id="m-ver" placeholder="Version (e.g. 1.21.4)" class="input-box">
+                    <input type="text" id="m-name" placeholder="Module Name" class="input-box">
+                    <input type="text" id="m-ver" placeholder="Version (1.21.4)" class="input-box">
                     <select id="m-cat" class="input-box">
                         <option value="Optimization">Optimization</option>
                         <option value="Visuals">Visuals</option>
                         <option value="Utilities">Utilities</option>
                         <option value="Gameplay">Gameplay</option>
                     </select>
-                    <textarea id="m-desc" placeholder="Short Description" class="input-box h-24 resize-none"></textarea>
-                    <input type="text" id="m-url" placeholder="Download URL (.jar)" class="input-box">
-                    <input type="text" id="m-img" placeholder="Icon URL (Optional)" class="input-box">
-                    <button onclick="addModule()" id="add-btn" class="btn-primary w-full py-3 rounded-lg mt-4 flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-rocket"></i> PUSH TO DATABASE
-                    </button>
+                    <textarea id="m-desc" placeholder="Description" class="input-box h-24 resize-none"></textarea>
+                    <input type="text" id="m-url" placeholder="Download Link" class="input-box">
+                    <input type="text" id="m-img" placeholder="Image URL" class="input-box">
+                    <button onclick="addModule()" id="add-btn" class="btn-primary w-full py-3 rounded-lg text-xs tracking-widest">PUSH TO DATABASE</button>
                 </div>
             </div>
 
             <div class="lg:col-span-2 cyber-card p-6">
-                <h3 class="text-lg font-bold mb-6 flex items-center gap-2"><i class="fa-solid fa-database"></i> Live Modules</h3>
+                <h3 class="text-sm font-bold mb-6 text-gray-400 uppercase tracking-widest">Management Console</h3>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="text-gray-500 border-b border-gray-800">
+                    <table class="w-full text-left text-xs">
+                        <thead class="text-gray-600 border-b border-white/5 uppercase">
                             <tr>
-                                <th class="pb-3">Name (ID)</th>
-                                <th class="pb-3">Version</th>
-                                <th class="pb-3">Category</th>
-                                <th class="pb-3 text-right">Action</th>
+                                <th class="pb-4 px-2">ID</th>
+                                <th class="pb-4">Name</th>
+                                <th class="pb-4">Category</th>
+                                <th class="pb-4 text-right">Action</th>
                             </tr>
                         </thead>
-                        <tbody id="module-list" class="divide-y divide-gray-800">
-                            <tr><td colspan="4" class="py-10 text-center opacity-30 italic">Login to sync data...</td></tr>
-                        </tbody>
+                        <tbody id="module-list" class="divide-y divide-white/5">
+                            </tbody>
                     </table>
                 </div>
             </div>
@@ -83,60 +75,51 @@
     </div>
 
     <script>
-        // CONFIG - FIXED URL AND KEY
-        const SB_URL = "https://zsdtlcyzhcfgcwqucdjd.supabase.co"; // Ensure no space at the end 
+        // FIXED URL (Matches your manual text) & API KEY
+        const SB_URL = "https://zsdtlcyzhcfgcwqucdjd.supabase.co"; 
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzZHRsY3l6aGNmZ2N3cXVjZGpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NDY2MDYsImV4cCI6MjA5MDEyMjYwNn0.IgjMXn3NbVw5nt8CvrJksD4NTEr26nLGwdytUgWFLe0";
 
         const _supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
         function login() {
-            const pass = document.getElementById('pass').value;
-            if(pass === "VISHAL@2008") {
+            if(document.getElementById('pass').value === "VISHAL@2008") {
                 document.getElementById('auth-gate').style.display = 'none';
                 document.getElementById('admin-panel').classList.remove('hidden');
                 loadModules();
-            } else { alert("ACCESS DENIED"); }
+            } else { alert("INVALID KEY"); }
         }
 
         async function loadModules() {
             const status = document.getElementById('net-status');
             const list = document.getElementById('module-list');
-            
-            status.innerHTML = `<span class="status-dot bg-blue-500 animate-pulse mr-2"></span>SYNCING...`;
+            status.innerHTML = "Status: Syncing...";
 
             try {
-                const { data, error } = await _supabase.from('Modules').select('*');
-                
+                const { data, error } = await _supabase.from('Modules').select('*').order('id', { ascending: false });
                 if(error) throw error;
 
-                status.innerHTML = `<span class="status-dot bg-green-500 mr-2"></span>DATABASE ONLINE | ${data.length} MODS`;
-                
+                status.innerHTML = `Status: Online | Modules: ${data.length}`;
                 list.innerHTML = data.map(m => `
-                    <tr class="hover:bg-white/5 transition">
-                        <td class="py-4 text-violet-400 font-bold">${m.id}</td>
-                        <td class="py-4 text-gray-400">${m.version}</td>
-                        <td class="py-4"><span class="bg-violet-900/30 text-violet-400 px-2 py-1 rounded text-[10px] uppercase">${m.category}</span></td>
+                    <tr class="hover:bg-white/5 transition group">
+                        <td class="py-4 px-2 text-gray-600">#${m.id}</td>
+                        <td class="py-4 font-bold text-white">${m.name}</td>
+                        <td class="py-4"><span class="bg-violet-900/20 text-violet-400 px-2 py-1 rounded-md text-[9px] uppercase">${m.category}</span></td>
                         <td class="py-4 text-right">
-                            <button onclick="deleteMod('${m.id}')" class="text-red-500 hover:text-red-400 px-3 transition">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
+                            <button onclick="deleteMod(${m.id})" class="text-red-500/50 hover:text-red-500 transition px-2"><i class="fa-solid fa-trash-can"></i></button>
                         </td>
                     </tr>
                 `).join('');
-                if(data.length === 0) list.innerHTML = `<tr><td colspan="4" class="py-10 text-center opacity-30 italic">No mods found in database.</td></tr>`;
                 
             } catch (err) {
-                status.innerHTML = `<span class="status-dot bg-red-500 mr-2"></span>OFFLINE: ${err.message}`;
-                console.error("Fetch failed:", err);
+                status.innerHTML = "Status: Offline - " + err.message;
+                console.error(err);
             }
         }
 
         async function addModule() {
             const btn = document.getElementById('add-btn');
-            
-            // Note: Saving Name to the 'id' column as per your screenshot
-            const modData = {
-                id: document.getElementById('m-name').value, 
+            const payload = {
+                name: document.getElementById('m-name').value, // Matches your 'name' column
                 version: document.getElementById('m-ver').value,
                 category: document.getElementById('m-cat').value,
                 description: document.getElementById('m-desc').value,
@@ -144,37 +127,33 @@
                 image_url: document.getElementById('m-img').value || ""
             };
 
-            if(!modData.id || !modData.download_url) return alert("Error: Mod Name and Download URL are mandatory.");
+            if(!payload.name || !payload.download_url) return alert("Fill Name and URL!");
 
             btn.disabled = true;
-            btn.innerHTML = "UPLOADING...";
+            btn.innerHTML = "PUSHING...";
 
             try {
-                const { error } = await _supabase.from('Modules').insert([modData]);
+                const { error } = await _supabase.from('Modules').insert([payload]);
                 if(error) throw error;
 
-                alert("SUCCESS: Mod Deployed!");
+                alert("Module Uplink Successful!");
                 loadModules();
-                // Reset inputs
                 document.querySelectorAll('.input-box').forEach(i => { if(i.tagName !== 'SELECT') i.value = ""; });
             } catch (err) {
-                alert("DEPLOY FAILED: " + err.message);
-                console.error(err);
+                alert("Critical Error: " + err.message);
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-rocket"></i> PUSH TO DATABASE';
+                btn.innerHTML = "PUSH TO DATABASE";
             }
         }
 
-        async function deleteMod(modId) {
-            if(confirm(`Permanently delete "${modId}"?`)) {
+        async function deleteMod(numId) {
+            if(confirm(`Delete Entry #${numId}?`)) {
                 try {
-                    const { error } = await _supabase.from('Modules').delete().eq('id', modId);
+                    const { error } = await _supabase.from('Modules').delete().eq('id', numId);
                     if(error) throw error;
                     loadModules();
-                } catch (err) {
-                    alert("Delete failed: " + err.message);
-                }
+                } catch (err) { alert(err.message); }
             }
         }
     </script>

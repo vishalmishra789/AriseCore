@@ -2,129 +2,162 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AriseCore | Nexus Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AriseCore | Nexus Terminal</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
-        body { background: #050505; color: white; font-family: 'Space Grotesk', sans-serif; overflow-x: hidden; }
-        .cyber-input { background: #111; border: 1px solid #222; padding: 12px; width: 100%; color: white; margin-bottom: 15px; outline: none; border-radius: 4px; transition: 0.2s; }
-        .cyber-input:focus { border-color: #8b5cf6; background: #16161c; }
-        .btn-v { background: #8b5cf6; padding: 12px; font-weight: bold; width: 100%; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; border-radius: 4px; }
-        .btn-v:hover:not(:disabled) { filter: brightness(1.2); box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); }
-        .btn-v:disabled { opacity: 0.5; cursor: not-allowed; }
-        .hidden { display: none !important; }
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        body { background: #050505; color: #e2e8f0; font-family: 'JetBrains+Mono', monospace; }
+        .cyber-panel { background: rgba(10, 10, 15, 0.95); border: 1px solid rgba(139, 92, 246, 0.2); box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        .cyber-input { background: #0f172a; border: 1px solid #1e293b; padding: 12px; width: 100%; color: #f8fafc; border-radius: 6px; transition: 0.3s; font-size: 0.85rem; }
+        .cyber-input:focus { border-color: #8b5cf6; box-shadow: 0 0 10px rgba(139, 92, 246, 0.3); outline: none; }
+        .glow-btn { background: linear-gradient(135deg, #7c3aed, #4f46e5); transition: 0.4s; text-transform: uppercase; font-weight: bold; letter-spacing: 2px; }
+        .glow-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 0 20px rgba(124, 58, 237, 0.6); }
+        .terminal-text { color: #10b981; text-shadow: 0 0 5px rgba(16, 185, 129, 0.5); }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-6">
+<body class="flex items-center justify-center min-h-screen p-4">
 
-    <div id="login-box" class="max-w-md w-full bg-[#0a0a0f] border border-white/5 p-8 rounded-xl text-center shadow-2xl">
-        <div class="w-12 h-12 border-2 border-violet-500 flex items-center justify-center rotate-45 mx-auto mb-6">
-            <i class="fa-solid fa-bolt-lightning -rotate-45 text-violet-400"></i>
+    <div id="auth-gate" class="max-w-md w-full cyber-panel p-8 rounded-2xl text-center">
+        <div class="mb-6 inline-block p-4 rounded-full bg-violet-500/10 text-violet-500 text-3xl">
+            <i class="fa-solid fa-microchip"></i>
         </div>
-        <h2 class="text-2xl font-black mb-6 uppercase tracking-widest text-white">Nexus Auth</h2>
-        <input type="password" id="admin-pass" placeholder="Authorization Key" class="cyber-input text-center">
-        <button onclick="checkAuth()" class="btn-v">Enter Terminal</button>
-        <p id="login-error" class="text-red-500 text-[10px] mt-4 uppercase tracking-widest hidden">Invalid Credentials</p>
+        <h1 class="text-xl font-bold mb-2 tracking-tighter">NEXUS AUTHORIZATION</h1>
+        <p class="text-gray-500 text-xs mb-6">RESTRICTED ACCESS: ARISE CORE INTERNAL</p>
+        <input type="password" id="gate-key" placeholder="ENTER SYSTEM KEY" class="cyber-input text-center mb-4">
+        <button onclick="unlock()" class="glow-btn w-full py-3 rounded-lg text-sm">Initialize Session</button>
+        <p id="gate-err" class="text-red-500 text-[10px] mt-4 uppercase hidden">Access Denied: Ghost detected</p>
     </div>
 
-    <div id="admin-panel" class="max-w-xl w-full bg-[#0a0a0f] border border-white/5 p-8 rounded-xl hidden shadow-2xl">
-        <div class="flex justify-between items-center mb-8 border-b border-white/5 pb-4">
-            <h2 class="text-2xl font-black text-violet-500 uppercase italic">Deployment</h2>
-            <button onclick="location.reload()" class="text-[10px] text-gray-500 hover:text-white uppercase font-bold tracking-widest">Logout</button>
+    <div id="main-panel" class="max-w-2xl w-full cyber-panel p-8 rounded-2xl hidden animate-in fade-in duration-500">
+        <div class="flex justify-between items-end mb-8">
+            <div>
+                <h2 class="text-2xl font-black italic text-violet-400">CORE DEPLOYER</h2>
+                <p class="text-[10px] text-gray-500 uppercase tracking-[0.2em]">VishalMishra789 // v2.1</p>
+            </div>
+            <button onclick="location.reload()" class="text-[10px] text-red-400 hover:text-red-300 border border-red-900/30 px-3 py-1 rounded">ABORT SESSION</button>
         </div>
-        
-        <div class="space-y-1 text-left">
-            <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold ml-1">Module Name</label>
-            <input type="text" id="m-name" placeholder="e.g., BetterFPS" class="cyber-input">
-            
-            <div class="grid grid-cols-2 gap-4">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-4">
                 <div>
-                    <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold ml-1">Version</label>
-                    <input type="text" id="m-ver" placeholder="1.21.4" class="cyber-input">
+                    <label class="text-[9px] uppercase text-gray-400 mb-1 block">Module Name</label>
+                    <input type="text" id="name" placeholder="BetterFPS" class="cyber-input">
                 </div>
                 <div>
-                    <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold ml-1">Category</label>
-                    <input type="text" id="m-cat" placeholder="Visual" class="cyber-input">
+                    <label class="text-[9px] uppercase text-gray-400 mb-1 block">Version Tag</label>
+                    <input type="text" id="ver" placeholder="1.21.x" class="cyber-input">
+                </div>
+                <div>
+                    <label class="text-[9px] uppercase text-gray-400 mb-1 block">Category</label>
+                    <select id="cat" class="cyber-input bg-[#0f172a]">
+                        <option value="Optimization">Optimization</option>
+                        <option value="Visuals">Visuals</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Gameplay">Gameplay</option>
+                    </select>
                 </div>
             </div>
-
-            <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold ml-1">Description</label>
-            <textarea id="m-desc" placeholder="System details..." class="cyber-input h-24"></textarea>
-
-            <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold ml-1">Download URL</label>
-            <input type="text" id="m-url" placeholder="Direct .jar link" class="cyber-input">
-
-            <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold ml-1">Icon URL (Optional)</label>
-            <input type="text" id="m-img" placeholder="https://..." class="cyber-input">
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[9px] uppercase text-gray-400 mb-1 block">Description</label>
+                    <textarea id="desc" placeholder="Briefly describe the module..." class="cyber-input h-[115px] resize-none"></textarea>
+                </div>
+            </div>
         </div>
 
-        <button onclick="deployModule()" id="main-btn" class="btn-v mt-4">Deploy to AriseCore</button>
-        <div id="msg" class="mt-6 text-xs text-center font-bold uppercase tracking-widest"></div>
+        <div class="mt-6 space-y-4">
+            <div>
+                <label class="text-[9px] uppercase text-gray-400 mb-1 block">Download URL (.jar/zip)</label>
+                <input type="text" id="d-url" placeholder="https://supabase.co/storage/..." class="cyber-input">
+            </div>
+            <div>
+                <label class="text-[9px] uppercase text-gray-400 mb-1 block">Preview Icon URL</label>
+                <input type="text" id="i-url" placeholder="Leave blank for default" class="cyber-input">
+            </div>
+        </div>
+
+        <button onclick="pushData()" id="push-btn" class="glow-btn w-full py-4 mt-8 rounded-xl text-md flex items-center justify-center gap-3">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            Deploy Module
+        </button>
+
+        <div class="mt-8 bg-black/40 border border-white/5 p-4 rounded-lg">
+            <div class="flex items-center gap-2 mb-2">
+                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                <span class="text-[10px] uppercase text-gray-400">System Log</span>
+            </div>
+            <div id="status-log" class="text-[11px] font-mono text-gray-500 leading-relaxed">
+                > Waiting for uplink input...
+            </div>
+        </div>
     </div>
 
     <script>
-        const SECRET_PASS = 'VISHAL@2008';
-        const SB_URL = 'https://zsdtrlcyzhcfgcwqudjd.supabase.co';
-        const SB_KEY = 'sb_publishable_AH1FfoTaQhEzco0uLSskww_mWKXOtBu';
+        // --- CONFIGURATION ---
+        const SECRET = "VISHAL@2008";
+        const SB_URL = "https://zsdtrlcyzhcfgcwqudjd.supabase.co";
+        // PASTE YOUR LONG ANON KEY STARTING WITH eyJ HERE:
+        const SB_KEY = "REPLACE_THIS_WITH_YOUR_ANON_KEY"; 
 
-        // Power Fix: Ensure Supabase loads correctly
         const _supabase = window.supabase.createClient(SB_URL, SB_KEY);
 
-        function checkAuth() {
-            const input = document.getElementById('admin-pass').value;
-            if(input === SECRET_PASS) {
-                document.getElementById('login-box').classList.add('hidden');
-                document.getElementById('admin-panel').classList.remove('hidden');
+        function log(msg, isError = false) {
+            const el = document.getElementById('status-log');
+            const color = isError ? 'text-red-400' : 'terminal-text';
+            el.innerHTML = `> <span class="${color}">${msg}</span>`;
+        }
+
+        function unlock() {
+            if(document.getElementById('gate-key').value === SECRET) {
+                document.getElementById('auth-gate').classList.add('hidden');
+                document.getElementById('main-panel').classList.remove('hidden');
+                log("Authorized session established. Handshaking with Supabase...");
             } else {
-                const error = document.getElementById('login-error');
-                error.classList.remove('hidden');
-                setTimeout(() => error.classList.add('hidden'), 2000);
+                document.getElementById('gate-err').classList.remove('hidden');
             }
         }
 
-        async function deployModule() {
-            const btn = document.getElementById('main-btn');
-            const msg = document.getElementById('msg');
-            
-            const payload = {
-                name: document.getElementById('m-name').value,
-                version: document.getElementById('m-ver').value,
-                category: document.getElementById('m-cat').value,
-                description: document.getElementById('m-desc').value,
-                download_url: document.getElementById('m-url').value,
-                image_url: document.getElementById('m-img').value
+        async function pushData() {
+            const btn = document.getElementById('push-btn');
+            const data = {
+                name: document.getElementById('name').value,
+                version: document.getElementById('ver').value,
+                category: document.getElementById('cat').value,
+                description: document.getElementById('desc').value,
+                download_url: document.getElementById('d-url').value,
+                image_url: document.getElementById('i-url').value || "https://placeholder.com/64"
             };
 
-            if(!payload.name || !payload.download_url) {
-                msg.innerText = "Error: missing core fields";
-                msg.className = "mt-6 text-xs text-center text-red-500 uppercase tracking-widest";
+            if(!data.name || !data.download_url) {
+                log("Uplink Aborted: Missing required identification fields.", true);
                 return;
             }
 
-            btn.innerText = "UPLINKING...";
             btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> ENCRYPTING...';
+            log("Opening secure socket to 'Modules' table...");
 
             try {
-                // Check: Is your table in Supabase named "Modules" (Capital M)?
-                const { error } = await _supabase.from('Modules').insert([payload]);
+                const { error } = await _supabase.from('Modules').insert([data]);
 
                 if (error) {
-                    msg.innerText = "FAILED: " + error.message;
-                    msg.className = "mt-6 text-xs text-center text-red-400 uppercase tracking-widest";
+                    log(`DATA REJECTED: ${error.message} (Check RLS & Table Name)`, true);
+                    console.error(error);
                 } else {
-                    msg.innerText = "UPLINK SUCCESSFUL";
-                    msg.className = "mt-6 text-xs text-center text-green-400 uppercase tracking-widest";
-                    document.querySelectorAll('.cyber-input').forEach(i => i.value = "");
+                    log(`DEPLOYMENT SUCCESSFUL: ${data.name} is now live.`);
+                    // Reset fields
+                    document.querySelectorAll('.cyber-input').forEach(i => i.value = (i.tagName === 'SELECT' ? i.value : ""));
                 }
             } catch (err) {
-                msg.innerText = "NETWORK ERROR: CHECK ADBLOCKER";
-                msg.className = "mt-6 text-xs text-center text-orange-500 uppercase tracking-widest";
+                log(`CRITICAL NETWORK FAILURE: Fetch blocked by Browser/Provider.`, true);
             }
-            
-            btn.innerText = "Deploy to AriseCore";
+
             btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Deploy Module';
         }
     </script>
 </body>

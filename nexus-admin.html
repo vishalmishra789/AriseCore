@@ -122,41 +122,52 @@
         }
 
         async function pushData() {
-            const btn = document.getElementById('push-btn');
-            const data = {
-                name: document.getElementById('name').value,
-                version: document.getElementById('ver').value,
-                category: document.getElementById('cat').value,
-                description: document.getElementById('desc').value,
-                download_url: document.getElementById('d-url').value,
-                image_url: document.getElementById('i-url').value || "https://placeholder.com/64"
-            };
+    const btn = document.getElementById('push-btn');
+    const logElement = document.getElementById('status-log');
+    
+    const data = {
+        name: document.getElementById('name').value,
+        version: document.getElementById('ver').value,
+        category: document.getElementById('cat').value,
+        description: document.getElementById('desc').value,
+        download_url: document.getElementById('d-url').value,
+        image_url: document.getElementById('i-url').value || ""
+    };
 
-            if(!data.name || !data.download_url) {
-                log("Uplink Aborted: Missing required identification fields.", true);
-                return;
-            }
+    if(!data.name || !data.download_url) {
+        log("ERROR: Name and Download URL are required.", true);
+        return;
+    }
 
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> ENCRYPTING...';
-            log("Opening secure socket to 'Modules' table...");
+    btn.disabled = true;
+    log("Attempting Uplink to 'Modules' table...");
 
-            try {
-                const { error } = await _supabase.from('Modules').insert([data]);
+    try {
+        // We use the capital 'M' to match your table name exactly
+        const { error } = await _supabase
+            .from('Modules') 
+            .insert([data])
+            .select();
 
-                if (error) {
-                    log(`DATA REJECTED: ${error.message} (Check RLS & Table Name)`, true);
-                    console.error(error);
-                } else {
-                    log(`DEPLOYMENT SUCCESSFUL: ${data.name} is now live.`);
-                    // Reset fields
-                    document.querySelectorAll('.cyber-input').forEach(i => i.value = (i.tagName === 'SELECT' ? i.value : ""));
-                }
-            } catch (err) {
-                log(`CRITICAL NETWORK FAILURE: Fetch blocked by Browser/Provider.`, true);
-            }
+        if (error) {
+            // If Supabase answers with an error, it's usually RLS or Column names
+            log(`DB REJECTION: ${error.message}`, true);
+            console.dir(error);
+        } else {
+            log(`SUCCESS: ${data.name} deployed to AriseCore.`);
+            // Clear the form
+            document.querySelectorAll('.cyber-input').forEach(i => {
+                if(i.tagName !== 'SELECT') i.value = "";
+            });
+        }
+    } catch (err) {
+        // If it lands here, it's the "Failed to Fetch" (The Browser Block)
+        log("BROWSER BLOCK: Connection killed by AdBlock, VPN, or Firewall.", true);
+        console.error("Fetch Error Detail:", err);
+    }
 
-            btn.disabled = false;
+    btn.disabled = false;
+}
             btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Deploy Module';
         }
     </script>

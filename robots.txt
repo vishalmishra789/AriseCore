@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /private/
+
+# Link to your sitemap to help Google find all pages
+Sitemap: https://arisecore.ilja.org/sitemap.xml
